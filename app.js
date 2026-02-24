@@ -38,46 +38,77 @@ function highlightUserInput() {
 }
 
 // --- 初始化 ---
+let demoPassword = '';
+
 window.onload = async () => {
     // 每次重新載入時清除之前的 Terminal 內容
     terminalContent.innerHTML = '';
-
-    // 渲染測試問題列表
     renderTestCases();
-
-    // 模擬載入過程的詳細日誌
     logToTerminal('[Frontend] Initialization Phase 1: Booting UI components...', 'system-log');
 
+    const overlay = document.getElementById('password-overlay');
+    const pwdInput = document.getElementById('demo-password-input');
+    const pwdBtn = document.getElementById('demo-password-btn');
+    const pwdError = document.getElementById('demo-password-error');
+    const pwdLoading = document.getElementById('demo-password-loading');
+
+    pwdInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') pwdBtn.click();
+    });
+
+    pwdBtn.addEventListener('click', async () => {
+        demoPassword = pwdInput.value.trim();
+        if (!demoPassword) return;
+
+        pwdBtn.disabled = true;
+        pwdBtn.textContent = "驗證中...";
+        pwdError.style.display = 'none';
+        pwdLoading.style.display = 'block';
+        logToTerminal('[Auth] Verifying Access Password and Backend connection...', 'system-log');
+
+        try {
+            const res = await fetch('https://med-ai-router-b5c5cwcdffcvdhas.japanwest-01.azurewebsites.net/api/VerifyApiKey', {
+                headers: { 'x-demo-password': demoPassword }
+            });
+
+            if (res.ok) {
+                logToTerminal('✅ [Auth] Password & API Keys verified effectively (Status: 200 OK)', 'system-log');
+                overlay.style.display = 'none';
+                await completeInitialization();
+            } else if (res.status === 401) {
+                throw new Error("Invalid Password");
+            } else {
+                throw new Error("Server Error");
+            }
+        } catch (err) {
+            if (err.message === "Invalid Password") {
+                logToTerminal(`❌ [Auth Error] Unauthorized: Incorrect Password.`, 'system-log');
+                pwdError.textContent = "密碼錯誤，請重試";
+            } else {
+                logToTerminal(`❌ [Network Error] Cannot reach Backend. Ensure it is running.`, 'system-log');
+                pwdError.textContent = "無法連線至後端伺服器";
+            }
+            pwdError.style.display = 'block';
+            pwdBtn.disabled = false;
+            pwdBtn.textContent = "解鎖";
+            pwdLoading.style.display = 'none';
+        }
+    });
+
+    if (pwdInput) pwdInput.focus();
+};
+
+async function completeInitialization() {
     await new Promise(r => setTimeout(r, 400));
     logToTerminal(`[Frontend] Data Store Mounted. Loaded ${customTestCases.length} predefined test cases.`, 'system-log');
 
     await new Promise(r => setTimeout(r, 400));
-    logToTerminal('[Network] Checking connection to Azure Functions Backend (https://med-ai-router-b5c5cwcdffcvdhas.japanwest-01.azurewebsites.net)...', 'system-log');
-
-    try {
-        logToTerminal('[Auth] Verifying API Key connection...', 'system-log');
-
-        // 改為呼叫專門的驗證端點，不僅省去語言模型生成句子的 15 秒以上延遲，也避免了冷啟動與計費
-        const res = await fetch('https://med-ai-router-b5c5cwcdffcvdhas.japanwest-01.azurewebsites.net/api/VerifyApiKey');
-
-        if (res.ok) {
-            logToTerminal('✅ [Auth] API Keys verified effectively (Status: 200 OK)', 'system-log');
-            logToTerminal('✅ [Plugins] Semantic Kernel & OpenRouter/Groq integration active.', 'system-log');
-        } else {
-            logToTerminal(`❌ [Auth Error] Failed to verify API Key. Backend responded with HTTP ${res.status}. Are OPENROUTER_API_KEY or GROQ_API_KEY correctly set in local.settings.json?`, 'system-log');
-            logToTerminal(`❌ [System Warning] Some Semantic Kernel plugins might fail to operate.`, 'system-log');
-            logToTerminal(`   > Affected Plugin: ClassificationPrompt (Intent Classification)`, 'system-log');
-            logToTerminal(`   > Affected Plugin: ReportPrompt (Medical Report Parse)`, 'system-log');
-            logToTerminal(`   > Affected Plugin: MedicationPrompt (Drug instruction/warnings)`, 'system-log');
-            logToTerminal(`   > Affected Plugin: GenerateTestQuestion (AI Simulation)`, 'system-log');
-        }
-    } catch (err) {
-        logToTerminal('❌ [Network Error] Cannot reach Backend. Please ensure "func start" is running in MedicalQueryRouter directory.', 'system-log');
-    }
+    logToTerminal('✅ [Plugins] Semantic Kernel & OpenRouter/Groq integration active.', 'system-log');
 
     await new Promise(r => setTimeout(r, 400));
     logToTerminal('[System Status] Semantic Kernel Routing UI is ready. Awaiting user interaction...', 'system-log');
-};
+}
+
 
 function renderTestCases() {
     testCaseSelect.innerHTML = '<option value="">-- 自訂與預設問題列表 --</option>';
@@ -125,7 +156,7 @@ generateBtn.addEventListener('click', async () => {
 
         const res = await fetch('https://med-ai-router-b5c5cwcdffcvdhas.japanwest-01.azurewebsites.net/api/GenerateTestQuestion', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-demo-password': demoPassword },
             body: JSON.stringify({ prompt: prompt, model: selectedModel })
         });
 
@@ -232,7 +263,7 @@ autoTestBtn.addEventListener('click', async () => {
 
             const res = await fetch('https://med-ai-router-b5c5cwcdffcvdhas.japanwest-01.azurewebsites.net/api/GenerateTestQuestion', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'x-demo-password': demoPassword },
                 body: JSON.stringify({ prompt: prompt, model: selectedModel })
             });
 
@@ -328,7 +359,8 @@ async function handleSend() {
         const response = await fetch('https://med-ai-router-b5c5cwcdffcvdhas.japanwest-01.azurewebsites.net/api/AnalyzeMedicalQuery', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-demo-password': demoPassword
             },
             body: JSON.stringify({ query: text, model: selectedModel })
         });
