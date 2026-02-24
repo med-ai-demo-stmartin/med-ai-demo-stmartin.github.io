@@ -107,6 +107,16 @@ async function completeInitialization() {
 
     await new Promise(r => setTimeout(r, 400));
     logToTerminal('[System Status] Semantic Kernel Routing UI is ready. Awaiting user interaction...', 'system-log');
+
+    // 在解鎖並初始化完成後 3 秒，自動將大標題下方的資訊與警語收折起來
+    setTimeout(() => {
+        const infoDiv = document.getElementById('collapsible-header-info');
+        if (infoDiv && infoDiv.style.maxHeight !== '0px') {
+            if (typeof toggleHeaderInfo === 'function') {
+                toggleHeaderInfo();
+            }
+        }
+    }, 3000);
 }
 
 
