@@ -189,6 +189,7 @@ if (clearInputBtn) {
 
 // 全自動測試
 let isAutoTesting = false;
+let isFirstAutoTest = true;
 autoTestBtn.addEventListener('click', async () => {
     if (autoTestBtn.disabled || isAutoTesting) return;
     isAutoTesting = true;
@@ -196,7 +197,16 @@ autoTestBtn.addEventListener('click', async () => {
     autoTestBtn.textContent = '測試中...';
 
     try {
-        const randomCase = customTestCases[Math.floor(Math.random() * customTestCases.length)];
+        let randomIndex = Math.floor(Math.random() * customTestCases.length);
+        if (isFirstAutoTest) {
+            // 第一次測試時，避開比較不夠震撼的「喝水」問題
+            while (customTestCases[randomIndex].text.includes("喝多少水")) {
+                randomIndex = Math.floor(Math.random() * customTestCases.length);
+            }
+            isFirstAutoTest = false;
+        }
+
+        const randomCase = customTestCases[randomIndex];
         userInput.value = randomCase.text;
         highlightUserInput();
 
