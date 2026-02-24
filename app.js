@@ -112,8 +112,12 @@ async function completeInitialization() {
     setTimeout(() => {
         const infoDiv = document.getElementById('collapsible-header-info');
         if (infoDiv && infoDiv.style.maxHeight !== '0px') {
-            if (typeof toggleHeaderInfo === 'function') {
-                toggleHeaderInfo();
+            if (typeof window.toggleHeaderInfo === 'function') {
+                window.toggleHeaderInfo();
+            } else {
+                // Fallback direct collapse
+                infoDiv.style.maxHeight = '0px';
+                infoDiv.style.margin = '0';
             }
         }
     }, 3000);

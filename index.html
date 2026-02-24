@@ -56,7 +56,7 @@
                     style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px;">
                     <button id="toggle-info-btn" onclick="toggleHeaderInfo()"
                         style="background: none; border: 1px solid #ccc; border-radius: 4px; padding: 4px 12px; font-size: 12px; cursor: pointer; color: #555; display: flex; align-items: center; gap: 5px;">
-                        <span>隱藏詳細資訊與警語</span> <span id="toggle-icon">▲</span>
+                        <span>隱藏詳細資訊與警語</span> <span id="header-toggle-icon">▲</span>
                     </button>
                 </div>
 
@@ -83,7 +83,7 @@
                     function toggleHeaderInfo() {
                         const infoDiv = document.getElementById('collapsible-header-info');
                         const btnText = document.querySelector('#toggle-info-btn span:first-child');
-                        const btnIcon = document.getElementById('toggle-icon');
+                        const btnIcon = document.getElementById('header-toggle-icon');
 
                         if (infoDiv.style.maxHeight !== '0px') {
                             // Collapse
