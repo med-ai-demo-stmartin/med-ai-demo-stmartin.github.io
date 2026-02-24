@@ -26,17 +26,68 @@
         <!-- 右半邊：使用者互動區 -->
         <div class="right-pane">
             <div class="chat-header" style="padding-bottom: 10px;">
-                <h1 style="margin-bottom: 5px; font-size: 1.5em;">醫療綜合釋疑小幫手 (DEMO)</h1>
-                <p style="font-size: 12px; margin-bottom: 8px; color: #555;">開發者：陳劭杰 0919848191 | Powered by Semantic
-                    Kernel & OpenRouter/Groq (免費額度)</p>
-                <div class="warning-banner"
-                    style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 6px 10px; background-color: #fff3cd; border-radius: 4px; border: 1px solid #ffeeba; font-size: 11px; color: #856404; margin: 0 auto; max-width: 95%;">
-                    <strong>⚠️ 聲明與警語：</strong>
-                    <span>1. 非正式醫療診斷，僅供衛教參考。</span>
-                    <span>2. 測試環境，請勿送出任何真實隱私或敏感資訊。</span>
-                    <span>3. 免費 AI 輸出穩定性受限。</span>
-                    <span style="color: #d9534f; font-weight: bold;">4. 免費 API 可能無回應或出錯，請稍後再試。</span>
+                <div
+                    style="display: flex; justify-content: center; align-items: baseline; gap: 10px; margin-bottom: 5px;">
+                    <h1 style="margin: 0; font-size: 1.5em;">醫療綜合釋疑小幫手 (DEMO)</h1>
+                    <span style="font-size: 13px; color: #666;">開發者：陳劭杰</span>
                 </div>
+                <div
+                    style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <button id="toggle-info-btn" onclick="toggleHeaderInfo()"
+                        style="background: none; border: 1px solid #ccc; border-radius: 4px; padding: 4px 12px; font-size: 12px; cursor: pointer; color: #555; display: flex; align-items: center; gap: 5px;">
+                        <span>隱藏詳細資訊與警語</span> <span id="toggle-icon">▲</span>
+                    </button>
+                </div>
+
+                <div id="collapsible-header-info"
+                    style="overflow: hidden; transition: max-height 1.6s ease-in-out; max-height: 500px;">
+                    <p style="font-size: 13px; margin-bottom: 12px; color: #444; line-height: 1.6; padding: 0 10px;">
+                        <strong>架構與技術部署：</strong>前端原生 HTML/CSS/JS。後端 C# .NET 8，運行於微軟雲端服務 Azure Consumption Plan
+                        免費層，無伺服器微服務架構(Azure Functions)。AI 路由核心整合 Microsoft Semantic Kernel 實作語義路由與動態 Prompt解析。支援 HTTP/2
+                        SSE 真即時串流 (FlushAsync)與Markdown格式化輸出，底層串接 OpenRouter / Groq 免費語言模型。
+                    </p>
+                    <div class="warning-banner"
+                        style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; background-color: #fff3cd; border-radius: 6px; border: 1px solid #ffeeba; font-size: 12px; color: #856404; margin: 0 auto; max-width: 95%; text-align: left;">
+                        <strong style="font-size: 13px; margin-bottom: 2px;">⚠️ 聲明與警語：</strong>
+                        <span>1. 非正式醫療診斷，僅供衛教參考。有實質病痛請務必尋求專業醫師協助。</span>
+                        <span>2. 測試環境，請勿送出任何真實身分證字號、病歷等隱私或敏感資訊。</span>
+                        <span>3. 輸出品質與穩定性受限於免費 AI 語言模型的能力。</span>
+                        <span>4. 免費 API 節點可能無回應或出錯，請稍後再試。</span>
+                        <span>5. 後端部署於雲端免費層，若閒置太長，喚醒可能需要額外十幾秒以上的冷啟動 (Cold Start) 時間，請耐心等候。</span>
+                        <span>6. 此 DEMO 純為技術展示，不會儲存任何歷史資訊，並將於完成面試後立即下架。</span>
+                    </div>
+                </div>
+
+                <script>
+                    function toggleHeaderInfo() {
+                        const infoDiv = document.getElementById('collapsible-header-info');
+                        const btnText = document.querySelector('#toggle-info-btn span:first-child');
+                        const btnIcon = document.getElementById('toggle-icon');
+
+                        if (infoDiv.style.maxHeight !== '0px') {
+                            // Collapse
+                            infoDiv.style.maxHeight = '0px';
+                            infoDiv.style.margin = '0'; // Optional: remove margin for tighter collapse
+                            btnText.textContent = '顯示詳細資訊與警語';
+                            btnIcon.textContent = '▼';
+                        } else {
+                            // Expand
+                            infoDiv.style.maxHeight = '500px'; // Value large enough to contain content
+                            btnText.textContent = '隱藏詳細資訊與警語';
+                            btnIcon.textContent = '▲';
+                        }
+                    }
+
+                    // Auto-collapse after 3 seconds
+                    document.addEventListener('DOMContentLoaded', () => {
+                        setTimeout(() => {
+                            const infoDiv = document.getElementById('collapsible-header-info');
+                            if (infoDiv && infoDiv.style.maxHeight !== '0px') {
+                                toggleHeaderInfo();
+                            }
+                        }, 3000);
+                    });
+                </script>
             </div>
 
 

@@ -270,7 +270,6 @@ newChatBtn.addEventListener('click', () => {
         </div>
     `;
     userInput.value = '';
-    terminalContent.innerHTML = '<div class="log-line system-log">Waiting for requests...</div>';
 });
 
 
@@ -414,7 +413,19 @@ function appendTerminalLog(timestamp, message) {
         logDiv.appendChild(timeSpan);
     }
 
-    const msgNode = document.createTextNode(message);
+    let formattedMessage = message;
+
+    // Highlight bracketed tags like [System Error] or Nodes
+    formattedMessage = formattedMessage.replace(/(\[.*?\])/g, '<span style="color: #4CAF50; font-weight: bold;">$1</span>');
+    // Highlight arrows and key paths
+    formattedMessage = formattedMessage.replace(/(Output\s*-&gt;|Output\s*->)/g, '<span style="color: #E91E63; font-weight: bold;">$&</span>');
+    // Highlight error words if present
+    if (formattedMessage.toLowerCase().includes('error') || formattedMessage.toLowerCase().includes('exception')) {
+        formattedMessage = `<span style="color: #f44336;">${formattedMessage}</span>`;
+    }
+
+    const msgNode = document.createElement('span');
+    msgNode.innerHTML = formattedMessage;
     logDiv.appendChild(msgNode);
 
     terminalContent.appendChild(logDiv);
@@ -424,7 +435,20 @@ function appendTerminalLog(timestamp, message) {
 function logToTerminal(message, className) {
     const logDiv = document.createElement('div');
     logDiv.className = `log-line ${className}`;
-    logDiv.innerText = message;
+
+    // Simple regex replacements for highlighting
+    let formattedMessage = message;
+
+    // Highlight bracketed tags like [Network] or [Auth]
+    formattedMessage = formattedMessage.replace(/(\[.*?\])/g, '<span style="color: #4CAF50; font-weight: bold;">$1</span>');
+    // Highlight routes and node names
+    formattedMessage = formattedMessage.replace(/([Nn]ode:|Route selected:)\s*([a-zA-Z]+)/g, '$1 <span style="color: #FFC107; font-weight: bold;">$2</span>');
+    // Highlight URLs
+    formattedMessage = formattedMessage.replace(/(https?:\/\/[^\s]+)/g, '<span style="color: #03A9F4; text-decoration: underline;">$1</span>');
+    // Highlight Output/Input
+    formattedMessage = formattedMessage.replace(/(Output\s*-&gt;|Output\s*->)/g, '<span style="color: #E91E63; font-weight: bold;">$&</span>');
+
+    logDiv.innerHTML = formattedMessage;
     terminalContent.appendChild(logDiv);
     terminalContent.scrollTop = terminalContent.scrollHeight;
 }
