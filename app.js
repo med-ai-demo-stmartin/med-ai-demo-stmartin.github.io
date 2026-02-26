@@ -162,9 +162,9 @@ generateBtn.addEventListener('click', async () => {
         let prompt = "";
         if (conversationHistory.length > 0) {
             const historyText = conversationHistory.map(h => `${h.role === 'user' ? '病患' : 'AI系統'}: ${h.text}`).join('\n');
-            prompt = `以下是目前的對話紀錄：\n${historyText}\n\n請你扮演病患，依據以下方向，生成一個簡短的追問問題。只要給我問題就好，不要任何解釋。\n方向：${direction || '合理的後續追問'}`;
+            prompt = `以下是目前的對話紀錄：\n${historyText}\n\n請你扮演病患，依據以下方向，生成一個簡短的追問問題。\n方向：${direction || '合理的後續追問'}\n\n【特別警告】：只要給我問題就好，不要任何廢話。必須使用全繁體中文（台灣慣用語），絕對不可以出現簡體字或中國大陸網路隨扈語氣。`;
         } else {
-            prompt = `請你扮演病患，依據以下方向，生成一個簡短的醫療相關問題。只要給我問題就好，不要任何解釋。\n方向：${direction}`;
+            prompt = `請你扮演病患，依據以下方向，生成一個簡短的醫療相關問題。\n方向：${direction}\n\n【特別警告】：只要給我問題就好，不要附帶任何解釋。必須使用全繁體中文（台灣慣用語），絕對不可以出現簡體字！`;
         }
 
         const modelSelect = document.getElementById('model-select');
@@ -269,7 +269,7 @@ autoTestBtn.addEventListener('click', async () => {
             await new Promise(r => setTimeout(r, 2000));
 
             const historyText = conversationHistory.map(h => `${h.role === 'user' ? '病患' : 'AI系統'}: ${h.text}`).join('\n');
-            const prompt = `以下是目前的對話紀錄：\n${historyText}\n\n請你扮演病患，依據目前對話脈絡，生成一個簡短的後續追問問題（不超過30個字）。只要給我問題就好，不要任何解釋。不要偏離原本的話題。`;
+            const prompt = `以下是目前的對話紀錄：\n${historyText}\n\n請你扮演病患，依據目前對話脈絡，生成一個簡短的後續追問問題（不超過30個字）。\n\n【特別警告】：\n1. 只要給我問題就好，不要任何廢話與問候。\n2. 切勿偏離原本的話題。\n3. 【最重要】必須使用繁體中文（台灣慣用語），絕對嚴格禁止產生任何簡體中文或中國大陸用語。`;
 
             logToTerminal(`[System] Auto Test: 呼叫生成追問 API...`, 'system-log');
             const modelSelect = document.getElementById('model-select');
